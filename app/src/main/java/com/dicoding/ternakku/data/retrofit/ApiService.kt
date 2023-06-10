@@ -21,9 +21,7 @@ interface ApiService {
     ) : Call<DiseaseResponse>
 
     @GET("diseases")
-    fun getList(
-        @Header("Authorization") token: String,
-    ) : Call<ListDiseasesResponse>
+    fun getList() : Call<ListDeseaseNewResponse>
 
     @FormUrlEncoded
     @POST("authentication/register")

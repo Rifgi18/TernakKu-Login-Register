@@ -27,12 +27,10 @@ class DetailActivity : AppCompatActivity() {
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val penyakit = intent.getParcelableExtra<Disease>(MainActivity.EXTRA_NAME) as Disease
-        println(penyakit?.name.toString())
-
         val id = intent.getIntExtra(MainActivity.EXTRA_ID, 0)
         val named = intent.getStringExtra(MainActivity.EXTRA_NAMED)
         val detail = intent.getStringExtra(MainActivity.EXTRA_DETAIL)
+        val handleM = intent.getStringExtra(MainActivity.EXTRA_HANDLE)
 
         val name = findViewById<TextView>(R.id.tv_name)
         val description =  findViewById<TextView>(R.id.tv_description)
@@ -40,9 +38,9 @@ class DetailActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
 
-        name.text = penyakit.name
-        description.text = penyakit.detail
-        handle.text = penyakit.heandle
+        name.text = named
+        description.text = detail
+        handle.text = handleM
 
         var isChecked = false
         CoroutineScope(Dispatchers.IO).launch {
@@ -65,11 +63,13 @@ class DetailActivity : AppCompatActivity() {
             if (isChecked){
                 if (named != null) {
                     if (detail != null) {
-                        viewModel.insertFavoriteDisease(
-                            id,
-                            named,
-                            detail,
-                            "handle")
+                        if (handleM != null) {
+                            viewModel.insertFavoriteDisease(
+                                id,
+                                named,
+                                detail,
+                                handleM)
+                        }
                     }
                 }
             }else{

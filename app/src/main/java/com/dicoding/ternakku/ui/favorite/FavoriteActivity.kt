@@ -9,40 +9,37 @@ import com.dicoding.ternakku.ListPenyakitAdapterLocal
 import com.dicoding.ternakku.data.retrofit.Disease
 import com.dicoding.ternakku.data.retrofit.roomdatabase.FavoriteDisease
 import com.dicoding.ternakku.databinding.ActivityFavoriteBinding
+import com.dicoding.ternakku.ui.detail.DetailViewModel
 
 class FavoriteActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityFavoriteBinding
-    private lateinit var adapter: ListPenyakitAdapterLocal
+    private lateinit var adapter: FavoriteAdapter
     private lateinit var viewModel: FavoriteViewModel
-    private val list = ArrayList<Disease>()
+    private val list = ArrayList<FavoriteDisease>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFavoriteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = ListPenyakitAdapterLocal(list)
+        adapter = FavoriteAdapter(this)
+        binding.rvFavorite.layoutManager = LinearLayoutManager(this)
+        binding.rvFavorite.setHasFixedSize(true)
+        binding.rvFavorite.adapter = adapter
+
         viewModel = ViewModelProvider(this)[FavoriteViewModel::class.java]
 
-        binding.apply {
-            rvFavorite.setHasFixedSize(true)
-            rvFavorite.layoutManager = LinearLayoutManager(this@FavoriteActivity)
-            rvFavorite.adapter = adapter
-        }
-
         viewModel.getFavoriteDiseases()?.observe(this) {
-            if (it != null) {
-                val list = getListPenyakit(it)
-                adapter.setList(list)
-            }
+            adapter.setListFav(it)
         }
     }
 
-    private fun getListPenyakit(deseases: List<FavoriteDisease>): ArrayList<Disease> {
-        val listDesease = ArrayList<Disease>()
+    private fun getListPenyakit(deseases: List<FavoriteDisease>): ArrayList<FavoriteDisease> {
+        val listDesease = ArrayList<FavoriteDisease>()
         for (desease in deseases) {
-            val userMapped = Disease(
+            val userMapped = FavoriteDisease(
                 desease.id,
                 desease.name,
                 desease.detail,

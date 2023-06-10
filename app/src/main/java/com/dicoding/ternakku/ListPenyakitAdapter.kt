@@ -4,14 +4,15 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.dicoding.ternakku.data.retrofit.response.ListDiseasesResponseItem
+import com.dicoding.ternakku.data.retrofit.Disease
+import com.dicoding.ternakku.data.retrofit.response.DiseasesItem
 import com.dicoding.ternakku.databinding.ListPenyakitBinding
 import com.dicoding.ternakku.ui.detail.DetailActivity
 
-class ListPenyakitAdapter (private var listPenyakit : List<ListDiseasesResponseItem>)  : RecyclerView.Adapter<ListPenyakitAdapter.ViewHolder>() {
+class ListPenyakitAdapter (private var listPenyakit : List<DiseasesItem>)  : RecyclerView.Adapter<ListPenyakitAdapter.ViewHolder>() {
 
     class ViewHolder(private val binding: ListPenyakitBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(listPenyakit: ListDiseasesResponseItem){
+        fun bind(listPenyakit: DiseasesItem){
             binding.tvName.text =listPenyakit.diseaseName
             binding.tvDescription.text=listPenyakit.diseaseDetails
         }
@@ -30,7 +31,10 @@ class ListPenyakitAdapter (private var listPenyakit : List<ListDiseasesResponseI
 
         holder.itemView.setOnClickListener {
             val moveToDetail = Intent(holder.itemView.context, DetailActivity::class.java)
-            moveToDetail.putExtra(DetailActivity.KEY_ID, getListPenyakit.diseaseName)
+            moveToDetail.putExtra(MainActivity.EXTRA_ID, getListPenyakit.id)
+            moveToDetail.putExtra(MainActivity.EXTRA_NAMED, getListPenyakit.diseaseName)
+            moveToDetail.putExtra(MainActivity.EXTRA_DETAIL, getListPenyakit.diseaseDetails)
+            moveToDetail.putExtra(MainActivity.EXTRA_HANDLE, getListPenyakit.handlingMethod)
             holder.itemView.context.startActivity(moveToDetail)
         }
     }

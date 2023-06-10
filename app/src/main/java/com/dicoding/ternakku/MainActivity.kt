@@ -17,8 +17,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dicoding.ternakku.data.retrofit.ApiConfig
-import com.dicoding.ternakku.data.retrofit.response.ListDiseasesResponse
-import com.dicoding.ternakku.data.retrofit.response.ListDiseasesResponseItem
+import com.dicoding.ternakku.data.retrofit.response.DiseasesItem
+import com.dicoding.ternakku.data.retrofit.response.ListDeseaseNewResponse
 import com.dicoding.ternakku.databinding.ActivityMainBinding
 import com.dicoding.ternakku.preference.LoginPreference
 import com.dicoding.ternakku.ui.favorite.FavoriteActivity
@@ -42,11 +42,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setViewModel()
         val layoutManager = LinearLayoutManager(this)
         binding.rVList.layoutManager = layoutManager
         val itemDecoration = DividerItemDecoration(this, layoutManager.orientation)
         binding.rVList.addItemDecoration(itemDecoration)
+
+        setViewModel()
 
 
         binding.efbScan.setOnClickListener {
@@ -68,13 +69,15 @@ class MainActivity : AppCompatActivity() {
         binding.btnToLogin.setOnClickListener {
             startActivity(Intent(this@MainActivity, LoginActivity::class.java))
         }
+
+        getListData()
     }
 
     override fun onResume() {
         super.onResume()
         mainViewModel.getLoginUser().observe(this) { userData ->
             val tokken = userData.token
-            getListData(tokken)
+            getListData()
         }
     }
 
@@ -87,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
         mainViewModel.getLoginUser().observe(this) { user ->
             if (user.isLogin) {
-
+                getListData()
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
@@ -96,27 +99,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getListData(token: String){
+    private fun getListData(){
         showLoading(true)
-        val client = ApiConfig.getApiService().getList("Bearer " + token)
-        client.enqueue(object : Callback<ListDiseasesResponse> {
+        val client = ApiConfig.getApiService().getList()
+        client.enqueue(object : Callback<ListDeseaseNewResponse> {
             override fun onResponse(
-                call: Call<ListDiseasesResponse>,
-                response: Response<ListDiseasesResponse>
+                call: Call<ListDeseaseNewResponse>,
+                response: Response<ListDeseaseNewResponse>
             ) {
                 showLoading(false)
                 if(response.isSuccessful){
                     val responsBody = response.body()
                     if (responsBody!= null){
-                        setData(responsBody.listDiseasesResponse as List<ListDiseasesResponseItem>)
-                        Toast.makeText(this@MainActivity, responsBody.toString(), Toast.LENGTH_SHORT).show()
+                        setData(responsBody.diseases)
                     }
                 } else {
                     Toast.makeText(this@MainActivity, response.message(), Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<ListDiseasesResponse>, t: Throwable) {
+            override fun onFailure(call: Call<ListDeseaseNewResponse>, t: Throwable) {
                 showLoading(false)
                 Log.e(TAG, "onFailure: ${t.message.toString()}")
                 Toast.makeText(this@MainActivity, "Gagal instance Retrofit", Toast.LENGTH_SHORT).show()
@@ -125,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun setData(listPenyakit: List<ListDiseasesResponseItem>){
+    private fun setData(listPenyakit: List<DiseasesItem>){
         val adapter = ListPenyakitAdapter(listPenyakit)
         binding.rVList.adapter = adapter
     }
@@ -161,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_NAME = "extra_name"
         const val EXTRA_NAMED = "extra_named"
         const val EXTRA_DETAIL = "extra_detail"
+        const val EXTRA_HANDLE = "extra_handle"
     }
 
 
